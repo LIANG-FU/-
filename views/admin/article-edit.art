@@ -1,0 +1,104 @@
+{{extend './common/layout.art'}}
+{{block 'link'}}
+<link rel="stylesheet" href="/admin/css/article_edit.css">
+{{/block}}
+{{block 'main'}}
+    {{include './common/header.art'}}
+    <!-- 主体内容 -->
+    <div class="content">
+        {{include './common/aside.art'}}
+        <div class="main">
+            <!-- 分类标题 -->
+            <div class="title">
+                <h4>5b9a716cb2d2bf17706bcc0a</h4>
+            </div>
+
+            <form class="form-container" action="/admin/article-add" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" class="form-control" placeholder="请输入文章标题" name="title" value="{{article && article.title}}">
+                </div>
+                <div class="form-group">
+                    <label>作者</label>
+                    <input type="text" class="form-control" readonly name="author" value="{{@userInfo._id}}">
+                </div>
+                <div class="form-group">
+                    <label>发布时间</label>
+                    <input type="date" class="form-control" name="publishDate"  value="{{@article && article.publishDate}}">
+                </div>
+                
+                <div class="form-group">
+                   <label for="file">文章封面
+                    <!--
+                            multiple 允许用户一次性选择多个文件
+                    -->
+                        <input type="file" name="cover" id="file" value="{{article && article.cover}}" >
+                        <div class="thumbnail-waper" label="cover">
+                            {{if article}}
+                                <img class="img-thumbnail" id="preview" src="{{article && article.cover}}" >
+                            {{else}}
+                                <img class="img-thumbnail" id="preview" src="/admin/images/添加图片.png" >
+                            {{/if}}
+                        </div>
+                   </label>
+                </div>
+                {{if article}}
+                <div id="editor" > 
+                    {{@ article && article.content}}
+                </div>
+                {{else}}
+                <div id="editor"></div>
+                {{/if}}
+                    <input type="hidden" name="content"  id="contentArea" value="{{article && article.content}}">
+                <div class="buttons">
+                    <input type="submit" class="btn btn-primary">
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    <!-- /主体内容 -->
+{{/block}}
+{{block 'script'}}
+    <!-- 注意， 只需要引用 JS，无需引用任何 CSS ！！！-->
+    <script type="text/javascript" src="https://unpkg.com/wangeditor@3.1.1/release/wangEditor.min.js"></script>
+    <script type="text/javascript">
+
+        var file = document.querySelector('#file')
+        var preview = document.querySelector('#preview')
+        // 获取内容隐藏域
+        var contentArea = document.querySelector('#contentArea')
+
+        // 当用户选择完文件以后
+        file.onchange = function(){
+            // 创建文件读取对象
+            var reader = new FileReader()
+            // 用户选择的文件列表
+            
+            reader.readAsDataURL(this.files[0])
+            reader.onload = function(){
+                // 将文件读取的结果显示到页面当中
+                preview.src = reader.result
+            }
+        } 
+
+        var E = window.wangEditor
+        var editor = new E('#editor')
+        // 或者 var editor = new E( document.getElementById('editor') )
+        editor.customConfig.onchange = function (html) {
+            // html 即变化之后的内容
+            // 将变化后的html加入到content内容隐藏域中
+            contentArea.value = html 
+        }
+        // 使用 base64 保存图片
+        editor.customConfig.uploadImgShowBase64 = true   
+        // 隐藏“网络图片”tab
+        editor.customConfig.showLinkImg = false
+        editor.create()
+
+
+
+
+            
+    </script>
+{{/block}}
